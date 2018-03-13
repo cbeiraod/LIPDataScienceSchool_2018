@@ -50,10 +50,10 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   TTree *treeOut = new TTree("treeShapes","example jet shapes");
 
   treeOut->Branch("mass"       ,&mass            , "mass/F");
-  treeOut->Branch("ntowers" ,   &ntowersLoc      , "ntowers/F");
+  treeOut->Branch("ntowers" ,   &ntowersLoc      , "ntowers/I");
   treeOut->Branch("radial"     ,&shapeRadial     , "radial/F");
   treeOut->Branch("dispersion" ,&shapeDispersion , "dispersion/F");
-  treeOut->Branch("ntracks"    ,&ntracks         , "ntracks/F");
+  treeOut->Branch("ntracks"    ,&ntracks         , "ntracks/I");
 
   OpenFiles(inputDir);
 
