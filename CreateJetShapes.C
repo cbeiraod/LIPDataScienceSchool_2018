@@ -53,7 +53,7 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   treeOut->Branch("ntowers" ,   &ntowersLoc      , "ntowers/F");
   treeOut->Branch("radial"     ,&shapeRadial     , "radial/F");
   treeOut->Branch("dispersion" ,&shapeDispersion , "dispersion/F");
-  treeOut->Branch("ntracks"    ,&ntracks         , "ntracks/F");
+  treeOut->Branch("ntracks"    ,&ntracks         , "ntracks/I");
 
   OpenFiles(inputDir);
 
