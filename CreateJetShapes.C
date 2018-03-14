@@ -218,6 +218,7 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
     if(ntracks > 0)
     {
       trackAveCharge = trackChargeSum/ntracks;
+      maxTrackPt = leadingHadronPt;
       meanTrackPt = sumTrackPt/ntracks;
       meanTrackDR = sumTrackDR/ntracks;
     }
@@ -291,7 +292,6 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
 
     mass = jetMass;
     ntowersLoc = ntowers;
-    maxTrackPt = leadingHadronPt;
     towerEtot = sumTowerEem+sumTowerEhad;
     if(towerEtot > 0)
     {
