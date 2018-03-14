@@ -48,7 +48,9 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   Float_t trackChargeSum, trackAveCharge, trackWeightCharge;
   Float_t minTrackPt, maxTrackPt, meanTrackPt, sumTrackPt, weightTrackPt;
   Float_t minTrackDR, maxTrackDR, meanTrackDR;
-  //Float_t towerTrackRatio;
+  Float_t minTowerE, maxTowerE, meanTowerE, sumTowerE, weightTowerE;
+  Float_t minTowerEEem, minTowerEEhad, maxTowerEEem, maxTowerEEhad;
+  Float_t towerTrackRatio;
 
   TFile fOut(fileOut,"recreate");
   TTree *treeOut = new TTree("treeShapes","example jet shapes");
@@ -70,7 +72,17 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   treeOut->Branch("minTrackDR"       , &minTrackDR       , "minTrackDR/F");
   treeOut->Branch("maxTrackDR"       , &maxTrackDR       , "maxTrackDR/F");
   treeOut->Branch("meanTrackDR"      , &meanTrackDR      , "meanTrackDR/F");
-  //treeOut->Branch("towerTrackRatio"  , &towerTrackRatio  , "towerTrackRatio/F");
+  treeOut->Branch("minTowerE"        , &minTowerE        , "minTowerE/F");
+  treeOut->Branch("maxTowerE"        , &maxTowerE        , "maxTowerE/F");
+  treeOut->Branch("meanTowerE"       , &meanTowerE       , "meanTowerE/F");
+  treeOut->Branch("sumTowerE"        , &sumTowerE        , "sumTowerE/F");
+  treeOut->Branch("weightTowerE"     , &weightTowerE     , "weightTowerE/F");
+  treeOut->Branch("minTowerEEem"     , &minTowerEEem     , "minTowerEEem/F");
+  treeOut->Branch("minTowerEEhad"    , &minTowerEEhad    , "minTowerEEhad/F");
+  treeOut->Branch("maxTowerEEem"     , &maxTowerEEem     , "maxTowerEEem/F");
+  treeOut->Branch("maxTowerEEhad"    , &maxTowerEEhad    , "maxTowerEEhad/F");
+
+  treeOut->Branch("towerTrackRatio"  , &towerTrackRatio  , "towerTrackRatio/F");
 
   OpenFiles(inputDir);
 
@@ -111,7 +123,16 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
     maxTrackDR = 0;
     Float_t sumTrackDR = 0;
     meanTrackDR = 0;
-    //towerTrackRatio = 0;
+    minTowerE = 1000000000;
+    maxTowerE = 0;
+    meanTowerE = 0;
+    sumTowerE = 0;
+    weightTowerE = 0;
+    minTowerEEem = 0;
+    minTowerEEhad = 0;
+    maxTowerEEem = 0;
+    maxTowerEEhad = 0;
+    towerTrackRatio = 0;
 
     for(Int_t itrack = 0; itrack < ntracks; itrack++){
       if (TMath::Abs(trackEta[itrack]) > 20.) continue;
@@ -176,9 +197,42 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
       meanTrackDR = 0;
     }
 
+    for(int itower = 0; itower < ntowers; ++itower)
+    {
+      if(towerE[itower] < minTowerE)
+      {
+        minTowerE = towerE[itower];
+        minTowerEEem = towerEem[itower];
+        minTowerEEhad = towerEhad[itower];
+      }
+      if(towerE[itower] > maxTowerE)
+      {
+        maxTowerE = towerE[itower];
+        maxTowerEEem = towerEem[itower];
+        maxTowerEEhad = towerEhad[itower];
+      }
+      sumTowerE += towerE[itower];
+      weightTowerE += towerE[itower]/jetPt * towerE[itower];
+    }
+
+    if(ntowers > 0)
+    {
+      meanTowerE = sumTowerE/ntowers;
+    }
+    else
+    {
+      meanTowerE = 0;
+      minTowerE = 0;
+    }
+
     mass = jetMass;
     ntowersLoc = ntowers;
     maxTrackPt = leadingHadronPt;
+
+    if(sumTrackPt > 0)
+      towerTrackRatio = sumTowerE/sumTrackPt;
+    else
+      towerTrackRatio = 0;
 
     // Fill the output tree
     //    std::cout << mass << " " << ntowersLoc <<" " << shapeDispersion << " " << shapeRadial << std::endl;
