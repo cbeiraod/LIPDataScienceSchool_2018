@@ -235,7 +235,7 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
         maxTowerEem = towerEem[itower];
       if(towerEhad[itower] < minTowerEhad)
         minTowerEhad = towerEhad[itower];
-      if(towerEm[itower] > maxTowerEhad)
+      if(towerEhad[itower] > maxTowerEhad)
         maxTowerEhad = towerEhad[itower];
 
       sumTowerE += towerE[itower];
