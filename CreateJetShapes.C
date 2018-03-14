@@ -50,9 +50,11 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   Float_t minTrackDR, maxTrackDR, meanTrackDR;
   Float_t minTowerE, maxTowerE, meanTowerE, sumTowerE, weightTowerE;
   Float_t minTowerEEem, minTowerEEhad, maxTowerEEem, maxTowerEEhad;
-  Float_t minTowerEem, maxTowerEem, meanTowerEem;
-  Float_t minTowerEhad, maxTowerEhad, meanTowerEhad;
+  Float_t minTowerEem, maxTowerEem, meanTowerEem, sumTowerEem;
+  Float_t minTowerEhad, maxTowerEhad, meanTowerEhad, sumTowerEhad;
+  Float_t minTowerDR, maxTowerDR, meanTowerDR, weightTowerDR;
   Float_t towerTrackRatio;
+  Float_t towerEtot, towerEemfrac, towerEhadfrac;
 
   TFile fOut(fileOut,"recreate");
   TTree *treeOut = new TTree("treeShapes","example jet shapes");
@@ -86,12 +88,21 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   treeOut->Branch("minTowerEem"      , &minTowerEem      , "minTowerEem/F");
   treeOut->Branch("maxTowerEem"      , &maxTowerEem      , "maxTowerEem/F");
   treeOut->Branch("meanTowerEem"     , &meanTowerEem     , "meanTowerEem/F");
+  treeOut->Branch("sumTowerEem"      , &sumTowerEem      , "sumTowerEem/F");
   treeOut->Branch("minTowerEhad"     , &minTowerEhad     , "minTowerEhad/F");
   treeOut->Branch("maxTowerEhad"     , &maxTowerEhad     , "maxTowerEhad/F");
   treeOut->Branch("meanTowerEhad"    , &meanTowerEhad    , "meanTowerEhad/F");
+  treeOut->Branch("sumTowerEhad"     , &sumTowerEhad     , "sumTowerEhad/F");
+  treeOut->Branch("minTowerDR"       , &minTowerDR       , "minTowerDR/F");
+  treeOut->Branch("maxTowerDR"       , &maxTowerDR       , "maxTowerDR/F");
+  treeOut->Branch("meanTowerDR"      , &meanTowerDR      , "meanTowerDR/F");
+  treeOut->Branch("weightTowerDR"    , &weightTowerDR    , "weightTowerDR/F");
 
 
   treeOut->Branch("towerTrackRatio"  , &towerTrackRatio  , "towerTrackRatio/F");
+  treeOut->Branch("towerEtot"        , &towerEtot        , "towerEtot/F");
+  treeOut->Branch("towerEemfrac"     , &towerEemfrac     , "towerEemfrac/F");
+  treeOut->Branch("towerEhadfrac"    , &towerEhadfrac    , "towerEhadfrac/F");
 
   OpenFiles(inputDir);
 
@@ -144,12 +155,17 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
     towerTrackRatio = 0;
     minTowerEem = 1000000000;
     maxTowerEem = 0;
-    Float_t sumTowerEem = 0;
+    sumTowerEem = 0;
     meanTowerEem = 0;
     minTowerEhad = 1000000000;
     maxTowerEhad = 0;
-    Float_t sumTowerEhad = 0;
+    sumTowerEhad = 0;
     meanTowerEhad = 0;
+    minTowerDR = 1000000000;
+    maxTowerDR = 0;
+    Float_t sumTowerDR = 0;
+    meanTowerDR = 0;
+    weightTowerDR = 0;
 
     for(Int_t itrack = 0; itrack < ntracks; itrack++){
       if (TMath::Abs(trackEta[itrack]) > 20.) continue;
@@ -242,6 +258,18 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
       weightTowerE += towerE[itower]/jetPt * towerE[itower];
       sumTowerEem += towerEem[itower];
       sumTowerEhad += towerEhad[itower];
+
+
+      Float_t deltaPhi = TMath::Min(Double_t(TMath::Abs(jetPhi-towerPhi[itower])), Double_t(2*TMath::Pi()- TMath::Abs(jetPhi-towerPhi[itower])));
+      Float_t deltaEta = jetEta-towerEta[itower];
+      Float_t deltaR   = TMath::Sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
+
+      if (deltaR < minTowerDR)
+        minTowerDR = deltaR;
+      if (deltaR > maxTowerDR)
+        maxTowerDR = deltaR;
+      sumTowerDR += deltaR;
+      weightTowerDR += towerE[itower]/jetPt * deltaR;
     }
 
     if(ntowers > 0)
@@ -249,6 +277,7 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
       meanTowerE = sumTowerE/ntowers;
       meanTowerEem = sumTowerEem/ntowers;
       meanTowerEhad = sumTowerEhad/ntowers;
+      meanTowerDR = sumTowerDR/ntowers;
     }
     else
     {
@@ -256,11 +285,24 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
       minTowerE = 0;
       meanTowerEem = 0;
       meanTowerEhad = 0;
+      meanTowerDR = 0;
+      minTowerDR = 0;
     }
 
     mass = jetMass;
     ntowersLoc = ntowers;
     maxTrackPt = leadingHadronPt;
+    towerEtot = sumTowerEem+sumTowerEhad;
+    if(towerEtot > 0)
+    {
+      towerEemfrac = sumTowerEem/(sumTowerEem+sumTowerEhad);
+      towerEhadfrac = sumTowerEhad/(sumTowerEem+sumTowerEhad);
+    }
+    else
+    {
+      towerEemfrac = 0;
+      towerEhadfrac = 0;
+    }
 
     if(sumTrackPt > 0)
       towerTrackRatio = sumTowerE/sumTrackPt;
