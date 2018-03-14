@@ -50,6 +50,8 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   Float_t minTrackDR, maxTrackDR, meanTrackDR;
   Float_t minTowerE, maxTowerE, meanTowerE, sumTowerE, weightTowerE;
   Float_t minTowerEEem, minTowerEEhad, maxTowerEEem, maxTowerEEhad;
+  Float_t minTowerEem, maxTowerEem, meanTowerEem;
+  Float_t minTowerEhad, maxTowerEhad, meanTowerEhad;
   Float_t towerTrackRatio;
 
   TFile fOut(fileOut,"recreate");
@@ -81,6 +83,13 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   treeOut->Branch("minTowerEEhad"    , &minTowerEEhad    , "minTowerEEhad/F");
   treeOut->Branch("maxTowerEEem"     , &maxTowerEEem     , "maxTowerEEem/F");
   treeOut->Branch("maxTowerEEhad"    , &maxTowerEEhad    , "maxTowerEEhad/F");
+  treeOut->Branch("minTowerEem"      , &minTowerEem      , "minTowerEem/F");
+  treeOut->Branch("maxTowerEem"      , &maxTowerEem      , "maxTowerEem/F");
+  treeOut->Branch("meanTowerEem"     , &meanTowerEem     , "meanTowerEem/F");
+  treeOut->Branch("minTowerEhad"     , &minTowerEhad     , "minTowerEhad/F");
+  treeOut->Branch("maxTowerEhad"     , &maxTowerEhad     , "maxTowerEhad/F");
+  treeOut->Branch("meanTowerEhad"    , &meanTowerEhad    , "meanTowerEhad/F");
+
 
   treeOut->Branch("towerTrackRatio"  , &towerTrackRatio  , "towerTrackRatio/F");
 
@@ -133,6 +142,14 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
     maxTowerEEem = 0;
     maxTowerEEhad = 0;
     towerTrackRatio = 0;
+    minTowerEem = 1000000000;
+    maxTowerEem = 0;
+    Float_t sumTowerEem = 0;
+    meanTowerEem = 0;
+    minTowerEhad = 1000000000;
+    maxTowerEhad = 0;
+    Float_t sumTowerEhad = 0;
+    meanTowerEhad = 0;
 
     for(Int_t itrack = 0; itrack < ntracks; itrack++){
       if (TMath::Abs(trackEta[itrack]) > 20.) continue;
@@ -211,18 +228,34 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
         maxTowerEEem = towerEem[itower];
         maxTowerEEhad = towerEhad[itower];
       }
+
+      if(towerEem[itower] < minTowerEem)
+        minTowerEem = towerEem[itower];
+      if(towerEem[itower] > maxTowerEem)
+        maxTowerEem = towerEem[itower];
+      if(towerEhad[itower] < minTowerEhad)
+        minTowerEhad = towerEhad[itower];
+      if(towerEm[itower] > maxTowerEhad)
+        maxTowerEhad = towerEhad[itower];
+
       sumTowerE += towerE[itower];
       weightTowerE += towerE[itower]/jetPt * towerE[itower];
+      sumTowerEem += towerEem[itower];
+      sumTowerEhad += towerEhad[itower];
     }
 
     if(ntowers > 0)
     {
       meanTowerE = sumTowerE/ntowers;
+      meanTowerEem = sumTowerEem/ntowers;
+      meanTowerEhad = sumTowerEhad/ntowers;
     }
     else
     {
       meanTowerE = 0;
       minTowerE = 0;
+      meanTowerEem = 0;
+      meanTowerEhad = 0;
     }
 
     mass = jetMass;
