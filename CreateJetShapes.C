@@ -45,15 +45,20 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
                      ) {
 
   Float_t mass, shapeLeSub, shapeRadial, shapeDispersion,ntowersLoc;
+  Float_t trackChargeSum, trackAveCharge, trackWeightCharge;
 
   TFile fOut(fileOut,"recreate");
   TTree *treeOut = new TTree("treeShapes","example jet shapes");
 
   treeOut->Branch("mass"       ,&mass            , "mass/F");
-  treeOut->Branch("ntowers" ,   &ntowersLoc      , "ntowers/F");
+  treeOut->Branch("ntowers"    ,&ntowersLoc      , "ntowers/F");
   treeOut->Branch("radial"     ,&shapeRadial     , "radial/F");
   treeOut->Branch("dispersion" ,&shapeDispersion , "dispersion/F");
   treeOut->Branch("ntracks"    ,&ntracks         , "ntracks/I");
+  treeOut->Branch("trackleadDiff"    , &shapeLeSub       , "trackleadDiff/F");
+  treeOut->Branch("trackChargeSum"   , &trackChargeSum   , "trackChargeSum/F");
+  treeOut->Branch("trackAveCharge"   , &trackAveCharge   , "trackAveCharge/F");
+  treeOut->Branch("trackWeightCharge", &trackWeightCharge, "trackWeightCharge/F");
 
   OpenFiles(inputDir);
 
@@ -83,9 +88,14 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
     ntowersLoc=0;
 
     shapeRadial = 0.;
+    trackChargeSum = 0;
+    trackWeightCharge = 0;
 
     for(Int_t itrack = 0; itrack < ntracks; itrack++){
       if (TMath::Abs(trackEta[itrack]) > 20.) continue;
+
+      trackChargeSum += trackCharge[itrack];
+      trackWeightCharge += trackPt[itrack]/jetPt * trackCharge[itrack];
 
       // Get leading hadron pt
       if (trackPt[itrack] > leadingHadronPt){
@@ -117,6 +127,11 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
       shapeDispersion = TMath::Sqrt(jetDispersionSquareSum)/jetDispersionSum;
     else
       shapeDispersion = 0.;
+
+    if(ntracks > 0)
+      trackAveCharge = trackChargeSum/ntracks;
+    else
+      trackAveCharge = 0;
 
     mass = jetMass;
     ntowersLoc = ntowers;
