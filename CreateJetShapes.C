@@ -65,9 +65,9 @@ void CreateJetShapes(const char * inputDir , // Loops over all root files in
   treeOut->Branch("dispersion" ,&shapeDispersion , "dispersion/F");
   treeOut->Branch("ntracks"    ,&ntracks         , "ntracks/I");
   treeOut->Branch("trackleadDiff"    , &shapeLeSub       , "trackleadDiff/F");
-  treeOut->Branch("trackChargeSum"   , &trackChargeSum   , "trackChargeSum/F");
-  treeOut->Branch("trackAveCharge"   , &trackAveCharge   , "trackAveCharge/F");
-  treeOut->Branch("trackWeightCharge", &trackWeightCharge, "trackWeightCharge/F");
+  treeOut->Branch("sumTrackCharge"   , &trackChargeSum   , "sumTrackCharge/F");
+  treeOut->Branch("meanTrackCharge"  , &trackAveCharge   , "meanTrackCharge/F");
+  treeOut->Branch("weightTrackCharge", &trackWeightCharge, "weightTrackCharge/F");
   treeOut->Branch("minTrackPt"       , &minTrackPt       , "minTrackPt/F");
   treeOut->Branch("maxTrackPt"       , &maxTrackPt       , "maxTrackPt/F");
   treeOut->Branch("meanTrackPt"      , &meanTrackPt      , "meanTrackPt/F");
