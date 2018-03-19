@@ -2,7 +2,7 @@
 Data challenge from the LIP School "Data Science in (Astro)particle physics and the Bridge to Industry"
 
 
-## Create virtualenv and install crap
+## Create virtualenv and install stuff
 
 Create it:
 ```sh
